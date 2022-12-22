@@ -8,8 +8,8 @@
 
 Pod::Spec.new do |s|
   s.name             = 'HarborLockersSDK'
-  s.version          = '1.0.17'
-  s.summary          = 'Test summary.'
+  s.version          = '1.1.17'
+  s.summary          = 'SDK To access Harbor Lockers.'
 
 # This description is used to generate tags and improve search results.
 #   * Think: What does it do? Why did you write it? What is the focus?
@@ -18,12 +18,15 @@ Pod::Spec.new do |s|
 #   * Finally, don't worry about the indent, CocoaPods strips it!
 
   s.description      = <<-DESC
-Test description
+The Harbor Lockers SDK allows you to communicate and connect to our distributed network of towers. The SDK encapsulates all the logic to communicate with our infrastructure (Web API and BLE Interface), allowing you to request sessions and tokens to connect to a tower and control the doors. Use the SDK to:
+• Search for nearby towers
+• Connect to a tower and request a session token
+• Request a packet to open a locker
                        DESC
 
   s.homepage         = 'https://github.com/gmontemayor1987/test-h-m-sdk'
   s.license          = { :type => 'MIT', :file => 'LICENSE' }
-  s.author           = { 'Gerardo Montemayor' => 'gmontemayor1987@gmail.com'}
+  s.author           = { 'Lucas Diez de Medina' => 'lucas@theluxergroup.com', 'Dardo Sordi' => 'dardo@theluxergroup.com' }
   s.source           = { :git => 'https://github.com/gmontemayor1987/test-h-m-sdk.git', :tag => s.version } 
 
   s.ios.deployment_target = '12.1'
