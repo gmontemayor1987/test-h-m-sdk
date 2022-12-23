@@ -336,7 +336,6 @@ typedef SWIFT_ENUM(NSInteger, Environment, open) {
 
 
 @protocol HarborSDKDelegate;
-@protocol HarborSDKConsole;
 @class NSString;
 @class NSError;
 @class Tower;
@@ -346,7 +345,6 @@ SWIFT_CLASS("_TtC16HarborLockersSDK9HarborSDK")
 SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) HarborSDK * _Nonnull shared;)
 + (HarborSDK * _Nonnull)shared SWIFT_WARN_UNUSED_RESULT;
 @property (nonatomic, strong) id <HarborSDKDelegate> _Null_unspecified delegate;
-@property (nonatomic, strong) id <HarborSDKConsole> _Nullable outputConsole;
 - (nonnull instancetype)init SWIFT_UNAVAILABLE;
 + (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
 - (BOOL)isSyncing SWIFT_WARN_UNUSED_RESULT;
@@ -355,7 +353,7 @@ SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) HarborSDK * 
 - (void)setAccessToken:(NSString * _Nonnull)token;
 - (void)setEnvironment:(enum Environment)environment;
 - (void)downloadTowerConfigurationWithCompletion:(void (^ _Nonnull)(BOOL))completion;
-- (void)startTowerDiscoveryWithOutputConsole:(id <HarborSDKConsole> _Nullable)outputConsole;
+- (void)startTowerDiscovery;
 - (void)connectToTower:(Tower * _Nonnull)tower completion:(void (^ _Nonnull)(NSString * _Nullable, NSError * _Nullable))completion;
 @end
 
@@ -426,7 +424,7 @@ enum SessionPermission : NSInteger;
 /// \param completionHandler Success if the key was installed.
 ///
 - (void)sendInstallKeyWithKeyId:(NSInteger)keyId keyRotation:(NSInteger)keyRotation keyExpires:(NSDate * _Nonnull)keyExpires keyData:(NSData * _Nonnull)keyData keyLocator:(NSString * _Nonnull)keyLocator completionHandler:(void (^ _Nullable)(BOOL, NSError * _Nullable))completionHandler;
-/// Technician/System command. Creates an Sunset Key packet and send it to the connected device.
+/// Technician/System command. Creates a Sunset Key packet and send it to the connected device.
 /// \param keyId The key slot to sunset in the device. Must be a number between 1 and 4.
 ///
 /// \param keyRotation 0 = green, 1 = blue, 2 = fallback
@@ -888,12 +886,6 @@ enum SessionPermission : NSInteger;
 /// \param completionHandler Success if the device was factory reset.
 ///
 - (void)sendFactoryResetWithCompletionHandler:(void (^ _Nullable)(BOOL, NSError * _Nullable))completionHandler;
-@end
-
-
-SWIFT_PROTOCOL("_TtP16HarborLockersSDK16HarborSDKConsole_")
-@protocol HarborSDKConsole
-- (void)printToConsole:(NSString * _Nonnull)string;
 @end
 
 
@@ -1273,7 +1265,6 @@ typedef SWIFT_ENUM(NSInteger, Environment, open) {
 
 
 @protocol HarborSDKDelegate;
-@protocol HarborSDKConsole;
 @class NSString;
 @class NSError;
 @class Tower;
@@ -1283,7 +1274,6 @@ SWIFT_CLASS("_TtC16HarborLockersSDK9HarborSDK")
 SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) HarborSDK * _Nonnull shared;)
 + (HarborSDK * _Nonnull)shared SWIFT_WARN_UNUSED_RESULT;
 @property (nonatomic, strong) id <HarborSDKDelegate> _Null_unspecified delegate;
-@property (nonatomic, strong) id <HarborSDKConsole> _Nullable outputConsole;
 - (nonnull instancetype)init SWIFT_UNAVAILABLE;
 + (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
 - (BOOL)isSyncing SWIFT_WARN_UNUSED_RESULT;
@@ -1292,7 +1282,7 @@ SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) HarborSDK * 
 - (void)setAccessToken:(NSString * _Nonnull)token;
 - (void)setEnvironment:(enum Environment)environment;
 - (void)downloadTowerConfigurationWithCompletion:(void (^ _Nonnull)(BOOL))completion;
-- (void)startTowerDiscoveryWithOutputConsole:(id <HarborSDKConsole> _Nullable)outputConsole;
+- (void)startTowerDiscovery;
 - (void)connectToTower:(Tower * _Nonnull)tower completion:(void (^ _Nonnull)(NSString * _Nullable, NSError * _Nullable))completion;
 @end
 
@@ -1363,7 +1353,7 @@ enum SessionPermission : NSInteger;
 /// \param completionHandler Success if the key was installed.
 ///
 - (void)sendInstallKeyWithKeyId:(NSInteger)keyId keyRotation:(NSInteger)keyRotation keyExpires:(NSDate * _Nonnull)keyExpires keyData:(NSData * _Nonnull)keyData keyLocator:(NSString * _Nonnull)keyLocator completionHandler:(void (^ _Nullable)(BOOL, NSError * _Nullable))completionHandler;
-/// Technician/System command. Creates an Sunset Key packet and send it to the connected device.
+/// Technician/System command. Creates a Sunset Key packet and send it to the connected device.
 /// \param keyId The key slot to sunset in the device. Must be a number between 1 and 4.
 ///
 /// \param keyRotation 0 = green, 1 = blue, 2 = fallback
@@ -1825,12 +1815,6 @@ enum SessionPermission : NSInteger;
 /// \param completionHandler Success if the device was factory reset.
 ///
 - (void)sendFactoryResetWithCompletionHandler:(void (^ _Nullable)(BOOL, NSError * _Nullable))completionHandler;
-@end
-
-
-SWIFT_PROTOCOL("_TtP16HarborLockersSDK16HarborSDKConsole_")
-@protocol HarborSDKConsole
-- (void)printToConsole:(NSString * _Nonnull)string;
 @end
 
 
