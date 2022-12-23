@@ -345,8 +345,6 @@ SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) HarborSDK * 
 + (HarborSDK * _Nonnull)shared SWIFT_WARN_UNUSED_RESULT;
 @property (nonatomic, strong) id <HarborSDKDelegate> _Null_unspecified delegate;
 @property (nonatomic, strong) id <HarborSDKConsole> _Nullable outputConsole;
-- (nonnull instancetype)init SWIFT_UNAVAILABLE;
-+ (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
 - (BOOL)isSyncing SWIFT_WARN_UNUSED_RESULT;
 - (void)setBaseURL:(NSString * _Nonnull)baseURL;
 - (void)loginWithEmail:(NSString * _Nonnull)email password:(NSString * _Nonnull)password completion:(void (^ _Nonnull)(NSInteger, NSError * _Nullable))completion;
@@ -355,8 +353,8 @@ SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) HarborSDK * 
 - (void)downloadTowerConfigurationWithCompletion:(void (^ _Nonnull)(BOOL))completion;
 - (void)startTowerDiscoveryWithOutputConsole:(id <HarborSDKConsole> _Nullable)outputConsole;
 - (void)connectToTower:(Tower * _Nonnull)tower completion:(void (^ _Nonnull)(NSString * _Nullable, NSError * _Nullable))completion;
+- (nonnull instancetype)init OBJC_DESIGNATED_INITIALIZER;
 @end
-
 
 
 @interface HarborSDK (SWIFT_EXTENSION(HarborLockersSDK))
@@ -364,6 +362,7 @@ SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) HarborSDK * 
 - (void)dfuStateDidChangeTo:(enum DFUState)state;
 - (void)dfuError:(enum DFUError)error didOccurWithMessage:(NSString * _Nonnull)message;
 @end
+
 
 @class NSData;
 enum SessionPermission : NSInteger;
