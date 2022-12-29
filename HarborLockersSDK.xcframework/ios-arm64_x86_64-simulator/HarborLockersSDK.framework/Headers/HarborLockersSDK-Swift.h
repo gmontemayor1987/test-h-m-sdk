@@ -271,6 +271,7 @@ SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) HarborSDK * 
 
 @class NSData;
 enum SessionPermission : NSInteger;
+@class NSDate;
 
 @interface HarborSDK (SWIFT_EXTENSION(HarborLockersSDK))
 - (void)syncWithCompletionHandler:(void (^ _Nonnull)(BOOL, NSError * _Nullable))completionHandler;
@@ -312,6 +313,36 @@ enum SessionPermission : NSInteger;
 /// \param completionHandler Success if the session was terminated successfully.
 ///
 - (void)sendTerminateSessionWithErrorCode:(NSInteger)errorCode errorMessage:(NSString * _Nullable)errorMessage disconnectAfterSessionTerminated:(BOOL)disconnectAfterSessionTerminated completionHandler:(void (^ _Nullable)(BOOL, NSError * _Nullable))completionHandler;
+/// Technician/System command. Creates an Install Key packet and send it to the connected device.
+/// \param keyId The key slot to replace in the device. Must be a number between 1 and 4.
+///
+/// \param keyRotation 0 = green, 1 = blue, 2 = fallback
+///
+/// \param keyExpires The expiration date of the key being installed.
+///
+/// \param keyData 32 or 64 bytes with the bytes of the key to be installed.
+///
+/// \param keyLocator A user friendly identifier for the key. This will be returned when requesting the key info.
+///
+/// \param completionHandler Success if the key was installed.
+///
+- (void)sendInstallKeyWithKeyId:(NSInteger)keyId keyRotation:(NSInteger)keyRotation keyExpires:(NSDate * _Nonnull)keyExpires keyData:(NSData * _Nonnull)keyData keyLocator:(NSString * _Nonnull)keyLocator completionHandler:(void (^ _Nullable)(BOOL, NSError * _Nullable))completionHandler;
+/// Technician/System command. Creates a Sunset Key packet and send it to the connected device.
+/// \param keyId The key slot to sunset in the device. Must be a number between 1 and 4.
+///
+/// \param keyRotation 0 = green, 1 = blue, 2 = fallback
+///
+/// \param completionHandler Success if the key was sunsetted.
+///
+- (void)sendSunsetKeyWithKeyId:(NSInteger)keyId keyRotation:(NSInteger)keyRotation completionHandler:(void (^ _Nullable)(BOOL, NSError * _Nullable))completionHandler;
+/// Technician/System command. Creates an Revoke Key packet and send it to the connected device.
+/// \param keyId The key slot to revoke in the device. Must be a number between 1 and 4.
+///
+/// \param keyRotation 0 = green, 1 = blue, 2 = fallback
+///
+/// \param completionHandler Success if the key was revoked.
+///
+- (void)sendRevokeKeyWithKeyId:(NSInteger)keyId keyRotation:(NSInteger)keyRotation completionHandler:(void (^ _Nullable)(BOOL, NSError * _Nullable))completionHandler;
 /// Creates an Request Sync Status packet and send it to the connected device. In order to validate the response data, you need to check for the error object in the completion handler. If a valid Request Sync Status message is sent, the completion handler will have the Sync Status information.
 /// \param completionHandler A completion handler block
 ///
@@ -474,6 +505,284 @@ enum SessionPermission : NSInteger;
 /// \param error An error returned by the device.
 ///
 - (void)sendCheckAllLockerDoorsWithCompletionHandler:(void (^ _Nonnull)(NSData * _Nullable, NSError * _Nullable))completionHandler;
+/// Creates a Get Device Info packet and send it to the connected device. In order to validate the response data, you need to check for the error object in the completion handler. If a valid Get Device Info command is sent, the completion handler will have the the device info values.
+/// \param completionHandler A completion handler block
+///
+/// \param towerId The tower ID configured in the device
+///
+/// \param towerName The tower name configured in the device
+///
+/// \param deviceModel The device model of the device.
+///
+/// \param deviceSerial The device serial of the device.
+///
+/// \param towerSerial The tower serial of the device.
+///
+/// \param firmwareVersion The firmware version running on the device.
+///
+/// \param mainboardId The ID of the mainboard
+///
+/// \param shield1Id The ID of the first detected shield.
+///
+/// \param shield2Id The ID of the second detected shield
+///
+/// \param solenoidDelay The delay set for the solenoids in the device.
+///
+/// \param error An error returned by the device.
+///
+- (void)sendGetDeviceInfoWithCompletionHandler:(void (^ _Nonnull)(NSData * _Nonnull, NSString * _Nonnull, NSString * _Nonnull, NSString * _Nonnull, NSString * _Nonnull, NSString * _Nonnull, NSInteger, NSInteger, NSInteger, NSInteger, NSError * _Nullable))completionHandler;
+/// Creates a Get Key Info packet and send it to the connected device. In order to validate the response data, you need to check for the error object in the completion handler. If a valid Get Key Info command is sent, the completion handler will have the the key info values.
+/// \param keyId The ID of the Key you want to request the info from.
+///
+/// \param keyRotation The key rotation you want to request the info from.
+///
+/// \param completionHandler A completion handler block
+///
+/// \param keyValid Whether the key is valid now
+///
+/// \param keySunset Sunset flag indicating if the key is marked as sunsetted or not.
+///
+/// \param keyExpires An int representing the timestamp when a key will become invalid.
+///
+/// \param keyLocator Locator data for this key. This is a string associated to the key when it was installed.
+///
+/// \param error An error returned by the device.
+///
+- (void)sendGetKeyInfoWithKeyId:(NSInteger)keyId keyRotation:(NSInteger)keyRotation completionHandler:(void (^ _Nonnull)(BOOL, BOOL, NSInteger, NSString * _Nonnull, NSError * _Nullable))completionHandler;
+/// Creates a Get Locker Info packet and send it to the connected device. In order to validate the response data, you need to check for the error object in the completion handler. If a valid Get Locker Info command is sent, the completion handler will have the the locker info values.
+/// \param lockerId The ID of the locker requesting the info for.
+///
+/// \param completionHandler A completion handler block
+///
+/// \param lockerPhysicalId Which port the locker is associated with.
+///
+/// \param lockerTypeId Configured locker type.
+///
+/// \param lockerAvailable Whether the locker is available or not.
+///
+/// \param lockerToken Current locker token, if any is associated.
+///
+/// \param lockerDisabled Whether the locker is disabled or not.
+///
+/// \param keypadCode Current keypad code for pickup
+///
+/// \param keypadNextToken Token to be set after the keypad code is used.
+///
+/// \param keypadNextAvailable Available flag value to be set after the keypad code is used.
+///
+/// \param keypadCodePersists A flag indicating if the keypad code persists after it’s used.
+///
+/// \param error An error returned by the device.
+///
+- (void)sendGetLockerInfoWithLockerId:(NSInteger)lockerId completionHandler:(void (^ _Nonnull)(NSInteger, NSInteger, NSInteger, BOOL, NSData * _Nonnull, BOOL, NSString * _Nonnull, NSData * _Nonnull, BOOL, BOOL, NSError * _Nullable))completionHandler;
+/// Creates a Read Device Status packet and send it to the connected device. In order to validate the response data, you need to check for the error object in the completion handler. If a valid Read Device Status command is sent, the completion handler will have the the device status values.
+/// \param completionHandler A completion handler block
+///
+/// \param temperature Current temperature in Celsius degrees, as a fixed-point integer with 4 bits of fraction.
+///
+/// \param clockTime Current date and time, according to the RTC
+///
+/// \param batteryCharge How much charge is remaining in the battery (estimated)
+///
+/// \param towerDisabled A flag indicating whether the tower is disabled or not.
+///
+/// \param towerReason The reason given for the tower being disabled.
+///
+/// \param error An error returned by the device.
+///
+- (void)sendReadDeviceStatusWithCompletionHandler:(void (^ _Nonnull)(NSInteger, NSInteger, NSInteger, BOOL, NSString * _Nonnull, NSError * _Nullable))completionHandler;
+/// Creates a Fire Lock packet and send it to the connected device.
+/// \param lockerPhysicalId The port of the lock to fire.
+///
+/// \param completionHandler Success if the lock was fired.
+///
+- (void)sendFireLockWithLockerPhysicalId:(NSInteger)lockerPhysicalId completionHandler:(void (^ _Nullable)(BOOL, NSError * _Nullable))completionHandler;
+/// Creates a Control Light packet and send it to the connected device.
+/// \param lockerPhysicalId The port of the lock to control the light of.
+///
+/// \param lockerLightOn Whether to turn on or off the light on the lock.
+///
+/// \param completionHandler Success if the command was sent successfully.
+///
+- (void)sendControlLightWithLockerPhysicalId:(NSInteger)lockerPhysicalId lockerLightOn:(BOOL)lockerLightOn completionHandler:(void (^ _Nullable)(BOOL, NSError * _Nullable))completionHandler;
+/// Creates a Read Port Status packet and send it to the connected device. In order to validate the response data, you need to check for the error object in the completion handler. If a valid Read Port Status command is sent, the completion handler will have the the device status values.
+/// \param lockerPhysicalId The port to request the status from.
+///
+/// \param completionHandler A completion handler block
+///
+/// \param lockerLightOn Whether the light is on or not.
+///
+/// \param lockerLockFiring Whether the lock is currently firing or not.
+///
+/// \param lockerDoorOpen Whether the door sensor reports the door being open.
+///
+/// \param error An error returned by the device.
+///
+- (void)sendReadPortStatusWithLockerPhysicalId:(NSInteger)lockerPhysicalId completionHandler:(void (^ _Nonnull)(BOOL, BOOL, BOOL, NSError * _Nullable))completionHandler;
+/// Creates a Sound Buzzer packet and send it to the connected device.
+/// \param buzzerSound An integer interpreted as a pattern of bits. These are to be arranged from least significant to most significant, with each bit representing a 100ms interval. If a bit is set, the buzzer is expected to be on for the interval, otherwise it should be silent for the interval.
+///
+/// \param completionHandler Success if the command was sent successfully.
+///
+- (void)sendSoundBuzzerWithBuzzerSound:(NSInteger)buzzerSound completionHandler:(void (^ _Nullable)(BOOL, NSError * _Nullable))completionHandler;
+/// Creates a Set Clock packet and send it to the connected device.
+/// \param timestamp A POSIX timestamp to set in the RTC. This time should come from the current device’s time, assuming the device is synced with a time server.
+///
+/// \param completionHandler Success if the clock was set correctly.
+///
+- (void)sendSetClockWithTimestamp:(NSInteger)timestamp completionHandler:(void (^ _Nullable)(BOOL, NSError * _Nullable))completionHandler;
+/// Creates a Set Solenoid Delay packet and send it to the connected device.
+/// \param solenoidDelay How long to hold the solenoid lock open, in milliseconds.
+///
+/// \param completionHandler Success if the solenoid delay was set correctly.
+///
+- (void)sendSetSolenoidDelayWithSolenoidDelay:(NSInteger)solenoidDelay completionHandler:(void (^ _Nullable)(BOOL, NSError * _Nullable))completionHandler;
+/// Creates a Read Keypad packet and send it to the connected device. In order to validate the response data, you need to check for the error object in the completion handler. If a valid Read Keypad command is sent, the completion handler will have the the keypad info.
+/// The bit assignments for the keys are as follows:
+/// <ul>
+///   <li>
+///     Bit 0 - key ‘0’
+///   </li>
+///   <li>
+///     Bit 1 - key ‘1’
+///   </li>
+///   <li>
+///     …
+///   </li>
+///   <li>
+///     Bit 9 - key ‘9’
+///   </li>
+///   <li>
+///     Bit 10 - key ‘*’ (if present)
+///   </li>
+///   <li>
+///     Bit 11 - key ‘#’ (if present)
+///   </li>
+///   <li>
+///     Bit 12 - key ‘Enter’ (if present)
+///   </li>
+/// </ul>
+/// \param completionHandler A completion handler block
+///
+/// \param keysHeld A bitmap of keys currently held down.
+///
+/// \param keysPressed A bitmap of keys newly pressed.
+///
+/// \param keysReleased A bitmap of keys newly released.
+///
+/// \param error An error returned by the device.
+///
+- (void)sendReadKeypadWithCompletionHandler:(void (^ _Nonnull)(NSInteger, NSInteger, NSInteger, NSError * _Nullable))completionHandler;
+/// Creates a Set Locker Token packet and send it to the connected device.
+/// \param lockerId The ID of the locker to set the token for.
+///
+/// \param lockerToken The token to set to the locker.
+///
+/// \param completionHandler Success if the token was set correctly.
+///
+- (void)sendSetLockerTokenWithLockerId:(NSInteger)lockerId lockerToken:(NSData * _Nonnull)lockerToken completionHandler:(void (^ _Nullable)(BOOL, NSError * _Nullable))completionHandler;
+/// Creates a Set Locker Available packet and send it to the connected device.
+/// \param lockerId The ID of the locker to set as available.
+///
+/// \param lockerAvailable Whether to set the locker as available or not.
+///
+/// \param completionHandler Success if the token was set correctly.
+///
+- (void)sendSetLockerAvailableWithLockerId:(NSInteger)lockerId lockerAvailable:(BOOL)lockerAvailable completionHandler:(void (^ _Nullable)(BOOL, NSError * _Nullable))completionHandler;
+/// Creates a Set Locker Keypad packet and send it to the connected device.
+/// \param lockerId The ID of the locker to set the keypad code for.
+///
+/// \param keypadCode The keypad code to set to the locker.
+///
+/// \param keypadCodePersists Whether the keypad code will persist after it’s used to open the locker.
+///
+/// \param keypadNextToken The token to assign to the locker if it’s open with the Keypad code.
+///
+/// \param keypadNextAvailable The availability flag to assign to the locker once it’s opened with the Keypad.
+///
+/// \param completionHandler Success if the token was set correctly.
+///
+- (void)sendSetLockerKeypadWithLockerId:(NSInteger)lockerId keypadCode:(NSString * _Nonnull)keypadCode keypadCodePersists:(BOOL)keypadCodePersists keypadNextToken:(NSData * _Nonnull)keypadNextToken keypadNextAvailable:(BOOL)keypadNextAvailable completionHandler:(void (^ _Nullable)(BOOL, NSError * _Nullable))completionHandler;
+/// Creates a Set Locker Disabled packet and send it to the connected device.
+/// \param lockerId The ID of the locker to set the disabled flag.
+///
+/// \param lockerDisabled Whether to disable the locker or not.
+///
+/// \param completionHandler Success if the token was set correctly.
+///
+- (void)sendSetLockerDisabledWithLockerId:(NSInteger)lockerId lockerDisabled:(BOOL)lockerDisabled completionHandler:(void (^ _Nullable)(BOOL, NSError * _Nullable))completionHandler;
+/// Creates a Read Counter packet and send it to the connected device. In order to validate the response data, you need to check for the error object in the completion handler. If a valid Read Counter command is sent, the completion handler will have the the counter value.
+/// \param counterId The ID of the counter to read the value from.
+///
+/// \param completionHandler A completion handler block
+///
+/// \param counterValue The value of the counter
+///
+/// \param counterLastReset A POSIX timestamp when the counter was last reset.
+///
+/// \param error An error returned by the device.
+///
+- (void)sendReadCounterWithCounterId:(NSInteger)counterId completionHandler:(void (^ _Nonnull)(NSInteger, NSInteger, NSInteger, NSError * _Nullable))completionHandler;
+/// Creates a Reset Counter packet and send it to the connected device.
+/// \param counterId The ID of the counter to reset.
+///
+/// \param completionHandler Success if the counter was reset.
+///
+- (void)sendResetCounterWithCounterId:(NSInteger)counterId completionHandler:(void (^ _Nullable)(BOOL, NSError * _Nullable))completionHandler;
+/// Creates a Set Tower ID packet and send it to the connected device.
+/// \param towerId The tower ID to set to the tower.
+///
+/// \param completionHandler Success if the tower ID was set.
+///
+- (void)sendSetTowerIdWithTowerId:(NSData * _Nonnull)towerId completionHandler:(void (^ _Nullable)(BOOL, NSError * _Nullable))completionHandler;
+/// Creates a Set Tower Serial packet and send it to the connected device.
+/// \param towerSerial The tower serial to set to the tower.
+///
+/// \param completionHandler Success if the tower serial was set.
+///
+- (void)sendSetTowerSerialWithTowerSerial:(NSString * _Nonnull)towerSerial completionHandler:(void (^ _Nullable)(BOOL, NSError * _Nullable))completionHandler;
+/// Creates a Set Tower Name packet and send it to the connected device.
+/// \param towerName The tower name to set to the tower.
+///
+/// \param completionHandler Success if the tower name was set.
+///
+- (void)sendSetTowerNameWithTowerName:(NSString * _Nonnull)towerName completionHandler:(void (^ _Nullable)(BOOL, NSError * _Nullable))completionHandler;
+/// Creates a Set Tower Disabled packet and send it to the connected device.
+/// \param towerDisabled A flag indicating if the tower should be disabled or not.
+///
+/// \param towerReason If the tower is disabled, an event is logged by the device and stores the reason why the tower was disabled.
+///
+/// \param completionHandler Success if the tower was enabled/disabled successfully.
+///
+- (void)sendSetTowerDisabledWithTowerDisabled:(BOOL)towerDisabled towerReason:(NSString * _Nonnull)towerReason completionHandler:(void (^ _Nullable)(BOOL, NSError * _Nullable))completionHandler;
+/// Creates a Reset Battery Gauge packet and send it to the connected device.
+/// \param completionHandler Success if the battery gauge was reset.
+///
+- (void)sendResetBatteryGaugeWithCompletionHandler:(void (^ _Nullable)(BOOL, NSError * _Nullable))completionHandler;
+/// Creates a Configure Locker packet and send it to the connected device.
+/// \param lockerId Logical locker ID to assign.
+///
+/// \param lockerPhysicalId Physical port number to assign.
+///
+/// \param lockerTypeId The ID to assign to the locker.
+///
+/// \param completionHandler Success if the locker is configured successfully.
+///
+- (void)sendConfigureLockerWithLockerId:(NSInteger)lockerId lockerPhysicalId:(NSInteger)lockerPhysicalId lockerTypeId:(NSInteger)lockerTypeId completionHandler:(void (^ _Nullable)(BOOL, NSError * _Nullable))completionHandler;
+/// Creates an Adjust Clock packet and send it to the connected device.
+/// \param adjustClock Number of seconds forward (positive) or backward (negative) in time to adjust the clock
+///
+/// \param completionHandler Success if the clock was adjusted successfully.
+///
+- (void)sendAdjustClockWithAdjustClock:(NSInteger)adjustClock completionHandler:(void (^ _Nullable)(BOOL, NSError * _Nullable))completionHandler;
+/// Creates a Reboot Device packet and send it to the connected device.
+/// \param completionHandler Success if the device was rebooted.
+///
+- (void)sendRebootDeviceWithCompletionHandler:(void (^ _Nullable)(BOOL, NSError * _Nullable))completionHandler;
+/// Creates a Factory Reset packet and send it to the connected device.
+/// \param completionHandler Success if the device was factory reset.
+///
+- (void)sendFactoryResetWithCompletionHandler:(void (^ _Nullable)(BOOL, NSError * _Nullable))completionHandler;
 @end
 
 
@@ -788,6 +1097,7 @@ SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) HarborSDK * 
 
 @class NSData;
 enum SessionPermission : NSInteger;
+@class NSDate;
 
 @interface HarborSDK (SWIFT_EXTENSION(HarborLockersSDK))
 - (void)syncWithCompletionHandler:(void (^ _Nonnull)(BOOL, NSError * _Nullable))completionHandler;
@@ -829,6 +1139,36 @@ enum SessionPermission : NSInteger;
 /// \param completionHandler Success if the session was terminated successfully.
 ///
 - (void)sendTerminateSessionWithErrorCode:(NSInteger)errorCode errorMessage:(NSString * _Nullable)errorMessage disconnectAfterSessionTerminated:(BOOL)disconnectAfterSessionTerminated completionHandler:(void (^ _Nullable)(BOOL, NSError * _Nullable))completionHandler;
+/// Technician/System command. Creates an Install Key packet and send it to the connected device.
+/// \param keyId The key slot to replace in the device. Must be a number between 1 and 4.
+///
+/// \param keyRotation 0 = green, 1 = blue, 2 = fallback
+///
+/// \param keyExpires The expiration date of the key being installed.
+///
+/// \param keyData 32 or 64 bytes with the bytes of the key to be installed.
+///
+/// \param keyLocator A user friendly identifier for the key. This will be returned when requesting the key info.
+///
+/// \param completionHandler Success if the key was installed.
+///
+- (void)sendInstallKeyWithKeyId:(NSInteger)keyId keyRotation:(NSInteger)keyRotation keyExpires:(NSDate * _Nonnull)keyExpires keyData:(NSData * _Nonnull)keyData keyLocator:(NSString * _Nonnull)keyLocator completionHandler:(void (^ _Nullable)(BOOL, NSError * _Nullable))completionHandler;
+/// Technician/System command. Creates a Sunset Key packet and send it to the connected device.
+/// \param keyId The key slot to sunset in the device. Must be a number between 1 and 4.
+///
+/// \param keyRotation 0 = green, 1 = blue, 2 = fallback
+///
+/// \param completionHandler Success if the key was sunsetted.
+///
+- (void)sendSunsetKeyWithKeyId:(NSInteger)keyId keyRotation:(NSInteger)keyRotation completionHandler:(void (^ _Nullable)(BOOL, NSError * _Nullable))completionHandler;
+/// Technician/System command. Creates an Revoke Key packet and send it to the connected device.
+/// \param keyId The key slot to revoke in the device. Must be a number between 1 and 4.
+///
+/// \param keyRotation 0 = green, 1 = blue, 2 = fallback
+///
+/// \param completionHandler Success if the key was revoked.
+///
+- (void)sendRevokeKeyWithKeyId:(NSInteger)keyId keyRotation:(NSInteger)keyRotation completionHandler:(void (^ _Nullable)(BOOL, NSError * _Nullable))completionHandler;
 /// Creates an Request Sync Status packet and send it to the connected device. In order to validate the response data, you need to check for the error object in the completion handler. If a valid Request Sync Status message is sent, the completion handler will have the Sync Status information.
 /// \param completionHandler A completion handler block
 ///
@@ -991,6 +1331,284 @@ enum SessionPermission : NSInteger;
 /// \param error An error returned by the device.
 ///
 - (void)sendCheckAllLockerDoorsWithCompletionHandler:(void (^ _Nonnull)(NSData * _Nullable, NSError * _Nullable))completionHandler;
+/// Creates a Get Device Info packet and send it to the connected device. In order to validate the response data, you need to check for the error object in the completion handler. If a valid Get Device Info command is sent, the completion handler will have the the device info values.
+/// \param completionHandler A completion handler block
+///
+/// \param towerId The tower ID configured in the device
+///
+/// \param towerName The tower name configured in the device
+///
+/// \param deviceModel The device model of the device.
+///
+/// \param deviceSerial The device serial of the device.
+///
+/// \param towerSerial The tower serial of the device.
+///
+/// \param firmwareVersion The firmware version running on the device.
+///
+/// \param mainboardId The ID of the mainboard
+///
+/// \param shield1Id The ID of the first detected shield.
+///
+/// \param shield2Id The ID of the second detected shield
+///
+/// \param solenoidDelay The delay set for the solenoids in the device.
+///
+/// \param error An error returned by the device.
+///
+- (void)sendGetDeviceInfoWithCompletionHandler:(void (^ _Nonnull)(NSData * _Nonnull, NSString * _Nonnull, NSString * _Nonnull, NSString * _Nonnull, NSString * _Nonnull, NSString * _Nonnull, NSInteger, NSInteger, NSInteger, NSInteger, NSError * _Nullable))completionHandler;
+/// Creates a Get Key Info packet and send it to the connected device. In order to validate the response data, you need to check for the error object in the completion handler. If a valid Get Key Info command is sent, the completion handler will have the the key info values.
+/// \param keyId The ID of the Key you want to request the info from.
+///
+/// \param keyRotation The key rotation you want to request the info from.
+///
+/// \param completionHandler A completion handler block
+///
+/// \param keyValid Whether the key is valid now
+///
+/// \param keySunset Sunset flag indicating if the key is marked as sunsetted or not.
+///
+/// \param keyExpires An int representing the timestamp when a key will become invalid.
+///
+/// \param keyLocator Locator data for this key. This is a string associated to the key when it was installed.
+///
+/// \param error An error returned by the device.
+///
+- (void)sendGetKeyInfoWithKeyId:(NSInteger)keyId keyRotation:(NSInteger)keyRotation completionHandler:(void (^ _Nonnull)(BOOL, BOOL, NSInteger, NSString * _Nonnull, NSError * _Nullable))completionHandler;
+/// Creates a Get Locker Info packet and send it to the connected device. In order to validate the response data, you need to check for the error object in the completion handler. If a valid Get Locker Info command is sent, the completion handler will have the the locker info values.
+/// \param lockerId The ID of the locker requesting the info for.
+///
+/// \param completionHandler A completion handler block
+///
+/// \param lockerPhysicalId Which port the locker is associated with.
+///
+/// \param lockerTypeId Configured locker type.
+///
+/// \param lockerAvailable Whether the locker is available or not.
+///
+/// \param lockerToken Current locker token, if any is associated.
+///
+/// \param lockerDisabled Whether the locker is disabled or not.
+///
+/// \param keypadCode Current keypad code for pickup
+///
+/// \param keypadNextToken Token to be set after the keypad code is used.
+///
+/// \param keypadNextAvailable Available flag value to be set after the keypad code is used.
+///
+/// \param keypadCodePersists A flag indicating if the keypad code persists after it’s used.
+///
+/// \param error An error returned by the device.
+///
+- (void)sendGetLockerInfoWithLockerId:(NSInteger)lockerId completionHandler:(void (^ _Nonnull)(NSInteger, NSInteger, NSInteger, BOOL, NSData * _Nonnull, BOOL, NSString * _Nonnull, NSData * _Nonnull, BOOL, BOOL, NSError * _Nullable))completionHandler;
+/// Creates a Read Device Status packet and send it to the connected device. In order to validate the response data, you need to check for the error object in the completion handler. If a valid Read Device Status command is sent, the completion handler will have the the device status values.
+/// \param completionHandler A completion handler block
+///
+/// \param temperature Current temperature in Celsius degrees, as a fixed-point integer with 4 bits of fraction.
+///
+/// \param clockTime Current date and time, according to the RTC
+///
+/// \param batteryCharge How much charge is remaining in the battery (estimated)
+///
+/// \param towerDisabled A flag indicating whether the tower is disabled or not.
+///
+/// \param towerReason The reason given for the tower being disabled.
+///
+/// \param error An error returned by the device.
+///
+- (void)sendReadDeviceStatusWithCompletionHandler:(void (^ _Nonnull)(NSInteger, NSInteger, NSInteger, BOOL, NSString * _Nonnull, NSError * _Nullable))completionHandler;
+/// Creates a Fire Lock packet and send it to the connected device.
+/// \param lockerPhysicalId The port of the lock to fire.
+///
+/// \param completionHandler Success if the lock was fired.
+///
+- (void)sendFireLockWithLockerPhysicalId:(NSInteger)lockerPhysicalId completionHandler:(void (^ _Nullable)(BOOL, NSError * _Nullable))completionHandler;
+/// Creates a Control Light packet and send it to the connected device.
+/// \param lockerPhysicalId The port of the lock to control the light of.
+///
+/// \param lockerLightOn Whether to turn on or off the light on the lock.
+///
+/// \param completionHandler Success if the command was sent successfully.
+///
+- (void)sendControlLightWithLockerPhysicalId:(NSInteger)lockerPhysicalId lockerLightOn:(BOOL)lockerLightOn completionHandler:(void (^ _Nullable)(BOOL, NSError * _Nullable))completionHandler;
+/// Creates a Read Port Status packet and send it to the connected device. In order to validate the response data, you need to check for the error object in the completion handler. If a valid Read Port Status command is sent, the completion handler will have the the device status values.
+/// \param lockerPhysicalId The port to request the status from.
+///
+/// \param completionHandler A completion handler block
+///
+/// \param lockerLightOn Whether the light is on or not.
+///
+/// \param lockerLockFiring Whether the lock is currently firing or not.
+///
+/// \param lockerDoorOpen Whether the door sensor reports the door being open.
+///
+/// \param error An error returned by the device.
+///
+- (void)sendReadPortStatusWithLockerPhysicalId:(NSInteger)lockerPhysicalId completionHandler:(void (^ _Nonnull)(BOOL, BOOL, BOOL, NSError * _Nullable))completionHandler;
+/// Creates a Sound Buzzer packet and send it to the connected device.
+/// \param buzzerSound An integer interpreted as a pattern of bits. These are to be arranged from least significant to most significant, with each bit representing a 100ms interval. If a bit is set, the buzzer is expected to be on for the interval, otherwise it should be silent for the interval.
+///
+/// \param completionHandler Success if the command was sent successfully.
+///
+- (void)sendSoundBuzzerWithBuzzerSound:(NSInteger)buzzerSound completionHandler:(void (^ _Nullable)(BOOL, NSError * _Nullable))completionHandler;
+/// Creates a Set Clock packet and send it to the connected device.
+/// \param timestamp A POSIX timestamp to set in the RTC. This time should come from the current device’s time, assuming the device is synced with a time server.
+///
+/// \param completionHandler Success if the clock was set correctly.
+///
+- (void)sendSetClockWithTimestamp:(NSInteger)timestamp completionHandler:(void (^ _Nullable)(BOOL, NSError * _Nullable))completionHandler;
+/// Creates a Set Solenoid Delay packet and send it to the connected device.
+/// \param solenoidDelay How long to hold the solenoid lock open, in milliseconds.
+///
+/// \param completionHandler Success if the solenoid delay was set correctly.
+///
+- (void)sendSetSolenoidDelayWithSolenoidDelay:(NSInteger)solenoidDelay completionHandler:(void (^ _Nullable)(BOOL, NSError * _Nullable))completionHandler;
+/// Creates a Read Keypad packet and send it to the connected device. In order to validate the response data, you need to check for the error object in the completion handler. If a valid Read Keypad command is sent, the completion handler will have the the keypad info.
+/// The bit assignments for the keys are as follows:
+/// <ul>
+///   <li>
+///     Bit 0 - key ‘0’
+///   </li>
+///   <li>
+///     Bit 1 - key ‘1’
+///   </li>
+///   <li>
+///     …
+///   </li>
+///   <li>
+///     Bit 9 - key ‘9’
+///   </li>
+///   <li>
+///     Bit 10 - key ‘*’ (if present)
+///   </li>
+///   <li>
+///     Bit 11 - key ‘#’ (if present)
+///   </li>
+///   <li>
+///     Bit 12 - key ‘Enter’ (if present)
+///   </li>
+/// </ul>
+/// \param completionHandler A completion handler block
+///
+/// \param keysHeld A bitmap of keys currently held down.
+///
+/// \param keysPressed A bitmap of keys newly pressed.
+///
+/// \param keysReleased A bitmap of keys newly released.
+///
+/// \param error An error returned by the device.
+///
+- (void)sendReadKeypadWithCompletionHandler:(void (^ _Nonnull)(NSInteger, NSInteger, NSInteger, NSError * _Nullable))completionHandler;
+/// Creates a Set Locker Token packet and send it to the connected device.
+/// \param lockerId The ID of the locker to set the token for.
+///
+/// \param lockerToken The token to set to the locker.
+///
+/// \param completionHandler Success if the token was set correctly.
+///
+- (void)sendSetLockerTokenWithLockerId:(NSInteger)lockerId lockerToken:(NSData * _Nonnull)lockerToken completionHandler:(void (^ _Nullable)(BOOL, NSError * _Nullable))completionHandler;
+/// Creates a Set Locker Available packet and send it to the connected device.
+/// \param lockerId The ID of the locker to set as available.
+///
+/// \param lockerAvailable Whether to set the locker as available or not.
+///
+/// \param completionHandler Success if the token was set correctly.
+///
+- (void)sendSetLockerAvailableWithLockerId:(NSInteger)lockerId lockerAvailable:(BOOL)lockerAvailable completionHandler:(void (^ _Nullable)(BOOL, NSError * _Nullable))completionHandler;
+/// Creates a Set Locker Keypad packet and send it to the connected device.
+/// \param lockerId The ID of the locker to set the keypad code for.
+///
+/// \param keypadCode The keypad code to set to the locker.
+///
+/// \param keypadCodePersists Whether the keypad code will persist after it’s used to open the locker.
+///
+/// \param keypadNextToken The token to assign to the locker if it’s open with the Keypad code.
+///
+/// \param keypadNextAvailable The availability flag to assign to the locker once it’s opened with the Keypad.
+///
+/// \param completionHandler Success if the token was set correctly.
+///
+- (void)sendSetLockerKeypadWithLockerId:(NSInteger)lockerId keypadCode:(NSString * _Nonnull)keypadCode keypadCodePersists:(BOOL)keypadCodePersists keypadNextToken:(NSData * _Nonnull)keypadNextToken keypadNextAvailable:(BOOL)keypadNextAvailable completionHandler:(void (^ _Nullable)(BOOL, NSError * _Nullable))completionHandler;
+/// Creates a Set Locker Disabled packet and send it to the connected device.
+/// \param lockerId The ID of the locker to set the disabled flag.
+///
+/// \param lockerDisabled Whether to disable the locker or not.
+///
+/// \param completionHandler Success if the token was set correctly.
+///
+- (void)sendSetLockerDisabledWithLockerId:(NSInteger)lockerId lockerDisabled:(BOOL)lockerDisabled completionHandler:(void (^ _Nullable)(BOOL, NSError * _Nullable))completionHandler;
+/// Creates a Read Counter packet and send it to the connected device. In order to validate the response data, you need to check for the error object in the completion handler. If a valid Read Counter command is sent, the completion handler will have the the counter value.
+/// \param counterId The ID of the counter to read the value from.
+///
+/// \param completionHandler A completion handler block
+///
+/// \param counterValue The value of the counter
+///
+/// \param counterLastReset A POSIX timestamp when the counter was last reset.
+///
+/// \param error An error returned by the device.
+///
+- (void)sendReadCounterWithCounterId:(NSInteger)counterId completionHandler:(void (^ _Nonnull)(NSInteger, NSInteger, NSInteger, NSError * _Nullable))completionHandler;
+/// Creates a Reset Counter packet and send it to the connected device.
+/// \param counterId The ID of the counter to reset.
+///
+/// \param completionHandler Success if the counter was reset.
+///
+- (void)sendResetCounterWithCounterId:(NSInteger)counterId completionHandler:(void (^ _Nullable)(BOOL, NSError * _Nullable))completionHandler;
+/// Creates a Set Tower ID packet and send it to the connected device.
+/// \param towerId The tower ID to set to the tower.
+///
+/// \param completionHandler Success if the tower ID was set.
+///
+- (void)sendSetTowerIdWithTowerId:(NSData * _Nonnull)towerId completionHandler:(void (^ _Nullable)(BOOL, NSError * _Nullable))completionHandler;
+/// Creates a Set Tower Serial packet and send it to the connected device.
+/// \param towerSerial The tower serial to set to the tower.
+///
+/// \param completionHandler Success if the tower serial was set.
+///
+- (void)sendSetTowerSerialWithTowerSerial:(NSString * _Nonnull)towerSerial completionHandler:(void (^ _Nullable)(BOOL, NSError * _Nullable))completionHandler;
+/// Creates a Set Tower Name packet and send it to the connected device.
+/// \param towerName The tower name to set to the tower.
+///
+/// \param completionHandler Success if the tower name was set.
+///
+- (void)sendSetTowerNameWithTowerName:(NSString * _Nonnull)towerName completionHandler:(void (^ _Nullable)(BOOL, NSError * _Nullable))completionHandler;
+/// Creates a Set Tower Disabled packet and send it to the connected device.
+/// \param towerDisabled A flag indicating if the tower should be disabled or not.
+///
+/// \param towerReason If the tower is disabled, an event is logged by the device and stores the reason why the tower was disabled.
+///
+/// \param completionHandler Success if the tower was enabled/disabled successfully.
+///
+- (void)sendSetTowerDisabledWithTowerDisabled:(BOOL)towerDisabled towerReason:(NSString * _Nonnull)towerReason completionHandler:(void (^ _Nullable)(BOOL, NSError * _Nullable))completionHandler;
+/// Creates a Reset Battery Gauge packet and send it to the connected device.
+/// \param completionHandler Success if the battery gauge was reset.
+///
+- (void)sendResetBatteryGaugeWithCompletionHandler:(void (^ _Nullable)(BOOL, NSError * _Nullable))completionHandler;
+/// Creates a Configure Locker packet and send it to the connected device.
+/// \param lockerId Logical locker ID to assign.
+///
+/// \param lockerPhysicalId Physical port number to assign.
+///
+/// \param lockerTypeId The ID to assign to the locker.
+///
+/// \param completionHandler Success if the locker is configured successfully.
+///
+- (void)sendConfigureLockerWithLockerId:(NSInteger)lockerId lockerPhysicalId:(NSInteger)lockerPhysicalId lockerTypeId:(NSInteger)lockerTypeId completionHandler:(void (^ _Nullable)(BOOL, NSError * _Nullable))completionHandler;
+/// Creates an Adjust Clock packet and send it to the connected device.
+/// \param adjustClock Number of seconds forward (positive) or backward (negative) in time to adjust the clock
+///
+/// \param completionHandler Success if the clock was adjusted successfully.
+///
+- (void)sendAdjustClockWithAdjustClock:(NSInteger)adjustClock completionHandler:(void (^ _Nullable)(BOOL, NSError * _Nullable))completionHandler;
+/// Creates a Reboot Device packet and send it to the connected device.
+/// \param completionHandler Success if the device was rebooted.
+///
+- (void)sendRebootDeviceWithCompletionHandler:(void (^ _Nullable)(BOOL, NSError * _Nullable))completionHandler;
+/// Creates a Factory Reset packet and send it to the connected device.
+/// \param completionHandler Success if the device was factory reset.
+///
+- (void)sendFactoryResetWithCompletionHandler:(void (^ _Nullable)(BOOL, NSError * _Nullable))completionHandler;
 @end
 
 
