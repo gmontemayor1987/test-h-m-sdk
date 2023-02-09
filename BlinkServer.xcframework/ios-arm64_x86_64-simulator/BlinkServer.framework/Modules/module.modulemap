@@ -1,0 +1,11 @@
+framework module BlinkServer {
+  umbrella header "BlinkServer.h"
+
+  export *
+  module * { export * }
+}
+
+module BlinkServer.Swift {
+  header "BlinkServer-Swift.h"
+  requires objc
+}
